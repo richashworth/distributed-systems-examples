@@ -8,13 +8,13 @@ import com.zink.queue.{ReadChannel, ConnectionFactory, Connection}
 object Consumer extends App {
 
   val con: Connection = ConnectionFactory.connect("127.0.0.1")
-  val rc: ReadChannel = con.subscribe("BBC7")
+  val rc: ReadChannel = con.subscribe(ChannelName)
 
   def readMessages(count: Int, searchString: String): Int = {
     val msg = rc.read()
     if (msg == EndOfStreamMarker) count
     else if (msg.toString().contains(searchString))
-      readMessages(count + 1,searchString)
+      readMessages(count + 1, searchString)
     else readMessages(count, searchString)
   }
 

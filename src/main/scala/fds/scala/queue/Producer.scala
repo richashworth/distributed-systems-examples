@@ -19,7 +19,7 @@ import com.zink.queue.{WriteChannel, ConnectionFactory, Connection}
 object Producer extends App {
 
   val con: Connection = ConnectionFactory.connect("127.0.0.1")
-  val wc: WriteChannel = con.publish("BBC7")
+  val wc: WriteChannel = con.publish(ChannelName)
 
   wc.write("Hello Consumer")
   wc.write(EndOfStreamMarker)
