@@ -3,4 +3,5 @@ package object hungryworkerpattern {
   val SearchResultFoundMsg = "SEARCH RESULT FOUND"
   val ChannelName = "SOME_CHANNEL"
   val ReplyChannelName = "REPLY_CHANNEL"
+  val searchString = "DanielBaudSkiGuide"
 }
