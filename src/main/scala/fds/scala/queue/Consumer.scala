@@ -7,11 +7,20 @@ import com.zink.queue.{ReadChannel, ConnectionFactory, Connection}
   */
 object Consumer extends App {
 
-      val con: Connection = ConnectionFactory.connect("192.168.99.100")
-      val rc: ReadChannel = con.subscribe("BBC7")
-      println(rc.read)
+  val con: Connection = ConnectionFactory.connect("127.0.0.1")
+  val rc: ReadChannel = con.subscribe("BBC7")
 
-      // TODO - read each line and count up the number of lines
-      // TODO - stop when the end of stream marker is found
+  def readMessages(count: Int, searchString: String): Int = {
+    val msg = rc.read()
+    if (msg == EndOfStreamMarker) count
+    else if (msg.toString().contains(searchString))
+      readMessages(count + 1,searchString)
+    else readMessages(count, searchString)
+  }
+
+  val searchString = "DanielBaudSkiGuide"
+
+  val result = readMessages(0, searchString)
+  println(result)
 
 }

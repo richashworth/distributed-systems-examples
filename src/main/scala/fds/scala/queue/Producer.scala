@@ -1,7 +1,5 @@
 package fds.scala.queue
 
-
-
 import com.zink.queue.{WriteChannel, ConnectionFactory, Connection}
 
 /**
@@ -20,18 +18,20 @@ import com.zink.queue.{WriteChannel, ConnectionFactory, Connection}
   */
 object Producer extends App {
 
-  val con : Connection = ConnectionFactory.connect("172.17.0.2")
-  val wc : WriteChannel = con.publish("BBC7")
+  val con: Connection = ConnectionFactory.connect("127.0.0.1")
+  val wc: WriteChannel = con.publish("BBC7")
 
   wc.write("Hello Consumer")
+  wc.write(EndOfStreamMarker)
 
   val fileName = "access.log"
   val logLines = scala.io.Source.fromFile(fileName).getLines
 
   // TODO use logLines to write each line onto the channel
-  for (line <- logLines) {
-      // ...
-  }
+//  for (line <- logLines) {
+//    wc.write(line)
+//  }
   // TODO write an end of stream marker
+  wc.write(EndOfStreamMarker)
 
 }
