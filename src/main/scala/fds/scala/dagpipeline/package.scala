@@ -1,4 +1,6 @@
-package object hungryworkerpattern {
+package fds.scala
+
+package object dagpipeline {
   val EndOfStreamMarker = ""
   val SearchResultFoundMsg = "SEARCH RESULT FOUND"
   val ChannelName = "SOME_CHANNEL"

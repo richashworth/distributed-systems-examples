@@ -1,4 +1,4 @@
-package hungryworkerpattern
+package fds.scala.dagpipeline
 
 import com.zink.queue.{Connection, ConnectionFactory, ReadChannel, WriteChannel}
 import scala.annotation.tailrec

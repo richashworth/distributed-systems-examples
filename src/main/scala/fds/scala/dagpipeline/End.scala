@@ -1,4 +1,4 @@
-package hungryworkerpattern
+package fds.scala.dagpipeline
 
 import com.zink.queue.{Connection, ConnectionFactory, ReadChannel, WriteChannel}
 import scala.annotation.tailrec
@@ -72,7 +72,6 @@ object CollectorApp extends App {
 
     println(s"Average time for $workerCount workers: $avgTiming")
   }
-
 
   (1 to maxWorkers).map(workerCount => averageTimings(workerCount))
 
