@@ -9,10 +9,10 @@ import com.zink.queue.{WriteChannel, ConnectionFactory, Connection}
   *
   * > docker run -d -p 4396:4396 zink/fly
   *
-  * To find container <run time name>
+  * To find container <run time name> (not required for running example)
   * > docker ps
   *
-  * To find ipAddress
+  * To find ipAddress (not required to run; point to localhost)
   * > docker inspect <run time name> | grep -i ipaddress
   *
   */
