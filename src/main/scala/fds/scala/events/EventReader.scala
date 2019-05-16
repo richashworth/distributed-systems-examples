@@ -1,19 +1,16 @@
 package fds.scala.events
 
-
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util._
 import java.util.concurrent.CountDownLatch
-
 import io.nats.streaming.{Message, StreamingConnection, StreamingConnectionFactory, SubscriptionOptions}
-
+import java.util
 import scala.collection.mutable
-
 
 object EventReader {
 
-  private[events] val targets  =
+  private[events] val targets =
     "AdultSki" :: "WinterActivities" :: "DanielBaudSkiGuide" :: Nil
 
   private[events] def register(logLine: String, document: Map[String, Int]): Unit = {
@@ -29,40 +26,52 @@ object EventReader {
     val document = new HashMap[String, Int]
 
     // Connect to EventStore
-    val clusterID: String = "test-cluster"
-    val clientID: String = "event-reader"
+    val clusterID: String              = "test-cluster"
+    val clientID: String               = "event-reader"
     val cf: StreamingConnectionFactory = new StreamingConnectionFactory(clusterID, clientID)
-    val sc: StreamingConnection = cf.createConnection
+    val sc: StreamingConnection        = cf.createConnection
 
     // Subscribe to the store for events
     val subject: String = "BBC7"
     // you may want to remove count down latch for the stream.
-    val doneLatch: CountDownLatch = new CountDownLatch(1)
+    val doneLatch: CountDownLatch = new CountDownLatch(100)
 
     //  Many subscribe options @see https://nats.io/documentation/writing_applications/subscribing/
     val opts: SubscriptionOptions = new SubscriptionOptions.Builder().deliverAllAvailable.build
 
+    var state: Map[String, Int] = new util.HashMap[String, Int]()
+
     sc.subscribe(subject, (evt: Message) => {
-      System.out.println(evt)
-      doneLatch.countDown
+      System.out.println("Event reader got " + evt)
+      register(new String(evt.getData()), state)
+//      doneLatch.countDown
+      if(new String(evt.getData())=="TERMINATE"){
+        println("received terminate")
+        doneLatch.countDown()
+      }
     }, opts)
 
     // wait for a message
     doneLatch.await
+
+    val reportStr = formatDoc(state)
+    writeToFile("report.txt", reportStr)
+
     // tidy up the connection
     sc.close
   }
 
   import scala.collection.JavaConverters._
 
-
   // Format the map into a report
   private[events] def formatDoc(document: Map[String, Int]): String = {
-    val rep  = mutable.ArrayBuffer[String]()
+    val rep = mutable.ArrayBuffer[String]()
     rep += "--------------------------------------------------------------------------------"
     rep += "| Giant Media - Usage Report                                                   |"
     rep += "--------------------------------------------------------------------------------"
-    rep ++= document.asScala.map{ case (k,v) => String.format("| %-49s|%26d |", k, new Integer(v)) }
+    rep ++= document.asScala.map {
+      case (k, v) => String.format("| %-49s|%26d |", k, new Integer(v))
+    }
     rep += "--------------------------------------------------------------------------------"
     val views = document.asScala.values.sum
     rep += String.format("| %-49s|%26d |", "Total Views", new Integer(views))
@@ -77,8 +86,7 @@ object EventReader {
 
   // Read a String from a named file
   private[events] def readFromFile(filename: String) = {
-    new  String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8)
+    new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8)
   }
-
 
 }

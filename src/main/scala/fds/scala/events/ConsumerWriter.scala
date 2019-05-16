@@ -1,12 +1,10 @@
 package fds.scala.events
 
-
 import com.zink.queue.Connection
 import com.zink.queue.ConnectionFactory
 import com.zink.queue.ReadChannel
 import io.nats.streaming.StreamingConnection
 import io.nats.streaming.StreamingConnectionFactory
-
 
 /**
   * Stub for the Consumer of information from the Queue and writer into the Nats EventStore
@@ -32,24 +30,27 @@ object ConsumerWriter {
   def main(args: Array[String]): Unit = {
 
     // Connect to queue
-    val ipAddr = "localhost" // or "192.168.1.84" e.g.
-    val con = ConnectionFactory.connect(ipAddr)
-    val channelName = "BBC7"
-    val rc = con.subscribe(channelName)
+    val ipAddr      = "127.0.0.1" // or "192.168.1.84" e.g.
+    val con         = ConnectionFactory.connect(ipAddr)
+    val channelName = "SOME_CHANNEL"
+    val rc          = con.subscribe(channelName)
 
     // Connect to EventStore
     val clusterID = "test-cluster"
-    val clientID = "event-writer"
-    val cf = new StreamingConnectionFactory(clusterID, clientID)
-    val sc = cf.createConnection
+    val clientID  = "event-writer"
+    val cf        = new StreamingConnectionFactory(clusterID, clientID)
+    val sc        = cf.createConnection
 
     // TODO - write the events into the event store
     // Hints ...
     // to read an item from the queue
-    val event = rc.read.asInstanceOf[String]
-    // to write an item to the event store
-    val subject = "BBC7"
-    sc.publish(subject, event.getBytes)
+    while (true) {
+      val event = rc.read.asInstanceOf[String]
+      // to write an item to the event store
+      val subject = "BBC7"
+      println("ConsumerWriter received message " + event.toString())
+      sc.publish(subject, event.getBytes)
+    }
 
   }
 

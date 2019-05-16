@@ -1,6 +1,6 @@
 package fds.scala
 
 package object queue {
-  val EndOfStreamMarker = ""
+  val EndOfStreamMarker = "TERMINATE"
   val ChannelName = "SOME_CHANNEL"
 }
