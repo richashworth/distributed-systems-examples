@@ -27,7 +27,7 @@ class HashRing(slots: Int) {
     // TODO find the appropriate node and add the value under the key
     val index = getHash(key)
     val node  = walkRingToFindNextNode(index)
-    println(s"adding $key to node ${node.name}")
+//    println(s"adding $key to node ${node.name}")
     node.put(key, value)
   }
 
@@ -68,11 +68,10 @@ object HashRingApp extends App {
   hr.addNode(RingNode("z Node CC"))
   println(hr.ring.keys.toList)
 
-  for (_ <- 1 to 16000) {
+  for (_ <- 1 to 160000) {
     val key = scala.util.Random.nextInt().toString()
     hr.put(key, "")
   }
 
   println(s"SIZE: ${hr.ringSize}")
-
 }
