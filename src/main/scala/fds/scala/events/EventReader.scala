@@ -4,7 +4,12 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import java.util._
 import java.util.concurrent.CountDownLatch
-import io.nats.streaming.{Message, StreamingConnection, StreamingConnectionFactory, SubscriptionOptions}
+import io.nats.streaming.{
+  Message,
+  StreamingConnection,
+  StreamingConnectionFactory,
+  SubscriptionOptions
+}
 import java.util
 import scala.collection.mutable
 
@@ -41,15 +46,19 @@ object EventReader {
 
     var state: Map[String, Int] = new util.HashMap[String, Int]()
 
-    sc.subscribe(subject, (evt: Message) => {
-      System.out.println("Event reader got " + evt)
-      register(new String(evt.getData()), state)
+    sc.subscribe(
+      subject,
+      (evt: Message) => {
+        System.out.println("Event reader got " + evt)
+        register(new String(evt.getData()), state)
 //      doneLatch.countDown
-      if(new String(evt.getData())=="TERMINATE"){
-        println("received terminate")
-        doneLatch.countDown()
-      }
-    }, opts)
+        if (new String(evt.getData()) == EndOfStreamMarker) {
+          println("received terminate")
+          doneLatch.countDown()
+        }
+      },
+      opts
+    )
 
     // wait for a message
     doneLatch.await
