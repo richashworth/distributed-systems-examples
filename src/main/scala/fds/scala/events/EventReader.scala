@@ -10,8 +10,11 @@ import io.nats.streaming.{
   StreamingConnectionFactory,
   SubscriptionOptions
 }
-import java.util
 import scala.collection.mutable
+import io.circe.parser._
+import io.circe.generic.auto._
+import io.circe.syntax._
+import scala.collection.JavaConverters._
 
 object EventReader {
 
@@ -25,10 +28,10 @@ object EventReader {
     })
   }
 
+  case class Snapshot(latestEventSeq: Long, state: scala.collection.mutable.Map[String, Int])
+
   @throws[Exception]
   def main(args: Array[String]): Unit = {
-
-    val document = new HashMap[String, Int]
 
     // Connect to EventStore
     val clusterID: String              = "test-cluster"
@@ -41,16 +44,25 @@ object EventReader {
     // you may want to remove count down latch for the stream.
     val doneLatch: CountDownLatch = new CountDownLatch(1)
 
-    //  Many subscribe options @see https://nats.io/documentation/writing_applications/subscribing/
-    val opts: SubscriptionOptions = new SubscriptionOptions.Builder().deliverAllAvailable.build
+    val seedSnapshot = recoverSnapshot()
+    val state        = seedSnapshot.state
+    var sequence     = seedSnapshot.latestEventSeq
 
-    var state: Map[String, Int] = new util.HashMap[String, Int]()
+    //  Many subscribe options @see https://nats.io/documentation/writing_applications/subscribing/
+    val opts: SubscriptionOptions =
+      new SubscriptionOptions.Builder().deliverAllAvailable
+        .startAtSequence(seedSnapshot.latestEventSeq)
+        .build
 
     sc.subscribe(
       subject,
       (evt: Message) => {
         System.out.println("Event reader got " + evt)
-        register(new String(evt.getData()), state)
+        register(new String(evt.getData()), state.asJava)
+
+        sequence += 1
+        if (sequence % 1 == 0) persistSnapshot(sequence, state)
+
 //      doneLatch.countDown
         if (new String(evt.getData()) == EndOfStreamMarker) {
           println("received terminate")
@@ -63,7 +75,7 @@ object EventReader {
     // wait for a message
     doneLatch.await
 
-    val reportStr = formatDoc(state)
+    val reportStr = formatDoc(state.asJava)
     writeToFile("report.txt", reportStr)
 
     // tidy up the connection
@@ -96,6 +108,18 @@ object EventReader {
   // Read a String from a named file
   private[events] def readFromFile(filename: String) = {
     new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8)
+  }
+
+  private[events] def recoverSnapshot(): Snapshot = {
+    val EmptySnapshot = Snapshot(0, scala.collection.mutable.Map[String, Int]())
+    val json: String  = readFromFile("SNAPSHOT.txt")
+    decode[Snapshot](json).getOrElse(EmptySnapshot)
+  }
+
+  private[events] def persistSnapshot(seq: Long, state: mutable.Map[String, Int]): Unit = {
+    val updatedSnapshot = Snapshot(seq, state)
+    println("PERSISTING SNAPSHOT: " + updatedSnapshot.state.toString())
+    writeToFile("SNAPSHOT.txt", updatedSnapshot.asJson.spaces2)
   }
 
 }

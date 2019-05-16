@@ -1,0 +1,8 @@
+{
+  "latestEventSeq" : 351,
+  "state" : {
+    "AdultSki" : 16,
+    "WinterActivities" : 13,
+    "DanielBaudSkiGuide" : 11
+  }
+}

@@ -9,3 +9,14 @@ cancelable in Global := true
 libraryDependencies += "com.flyobjectspace" % "flyjava" % "2.0.4"
 
 libraryDependencies += "io.nats" % "java-nats-streaming" % "2.1.0"
+
+val circeVersion = "0.10.0"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
+
+resolvers += Resolver.sonatypeRepo("releases")
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
