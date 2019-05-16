@@ -34,7 +34,7 @@ object EventReader {
     // Subscribe to the store for events
     val subject: String = "BBC7"
     // you may want to remove count down latch for the stream.
-    val doneLatch: CountDownLatch = new CountDownLatch(100)
+    val doneLatch: CountDownLatch = new CountDownLatch(1)
 
     //  Many subscribe options @see https://nats.io/documentation/writing_applications/subscribing/
     val opts: SubscriptionOptions = new SubscriptionOptions.Builder().deliverAllAvailable.build
