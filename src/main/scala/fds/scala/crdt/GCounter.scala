@@ -4,6 +4,8 @@ import scala.collection.mutable
 
 import cats.implicits._
 import cats.Semigroup
+import io.circe.syntax._
+import io.circe.generic.auto._
 
 case class GCounter(
     nodeVals: mutable.Map[String, Long] = mutable.Map.empty[String, Long]) {
@@ -29,14 +31,12 @@ case class GCounter(
     nodeVals.put(nodeName, i);
   }
 
-  def value: Long = {
-    nodeVals.values.sum
-  }
+  def value: Long = nodeVals.values.sum
 
   def merge(that: GCounter) =
     new GCounter(nodeVals.combine(that.nodeVals))
 
-  def toJson = ""
+  def toJson = nodeVals.asJson
 
   private def valOrZero(l: Long): Long = {
     if (l != null) return l.longValue
@@ -59,5 +59,6 @@ object GCounter extends App {
   println(b.nodeVals)
   println((a.merge(b).merge(c)).nodeVals)
   println((b.merge(c).merge(c).merge(a)).nodeVals)
-  println((a.merge(a)).nodeVals)
+
+  println((a.merge(a)).toJson.spaces4)
 }
