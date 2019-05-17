@@ -21,5 +21,4 @@ object CacheClient {
     Thread.sleep(100)
     System.out.println(cache.get("BBC1"))
 
-
 }

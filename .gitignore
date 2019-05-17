@@ -17,3 +17,6 @@ project/plugins/project/
 
 # Intellij specific
 .idea
+
+.DS_Store
+*secret
