@@ -21,7 +21,7 @@ public class Consumer {
         System.out.println(rc.read());
 
         // TODO - Read from the channel until the finish signal
-	}
+    }
 
 
 }

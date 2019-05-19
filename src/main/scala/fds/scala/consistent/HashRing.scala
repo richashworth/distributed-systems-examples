@@ -62,10 +62,11 @@ object HashRing {
 }
 
 object HashRingApp extends App {
-  val hr = new HashRing(200)
+  val hr = new HashRing(2000)
+  hr.addNode(RingNode("x Node AA"))
   hr.addNode(RingNode("x Node AA"))
   hr.addNode(RingNode("y Node BB"))
-  hr.addNode(RingNode("z Node CC"))
+  hr.addNode(RingNode("a Node DD"))
   println(hr.ring.keys.toList)
 
   for (_ <- 1 to 160000) {
